@@ -2,10 +2,9 @@ FROM --platform=linux/amd64 jenkins/jenkins:latest
 
 LABEL maintainer="cyganek.maxim@gmail.com"
 
-ARG DEBIAN_FRONTEND=noninteractive
 ENV JENKINS_UC_DOWNLOAD="https://mirror.yandex.ru/mirrors/jenkins"
 
-# Установка плагинов
+# Install plugins
 RUN jenkins-plugin-cli --plugins \
     ssh-slaves \
     ansible \
@@ -31,7 +30,7 @@ RUN jenkins-plugin-cli --plugins \
 
 USER root
 
-# Обновление и установка пакетов с улучшенной обработкой ошибок
+# Install packages with proper error handling
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         apt-transport-https \
@@ -40,15 +39,9 @@ RUN apt-get update && \
         gnupg2 \
         wget \
         software-properties-common && \
-    mkdir -p /etc/ssh/ssh_config.d/ && \
     echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
     echo "UserKnownHostsFile /dev/null" >> /etc/ssh/ssh_config && \
     apt-get clean && \
-    rm -rf \
-        /var/lib/apt/lists/* \
-        /tmp/* \
-        /var/tmp/* \
-        /usr/share/man/* \
-        /usr/share/doc/*
+    rm -rf /var/lib/apt/lists/*
 
 USER jenkins
